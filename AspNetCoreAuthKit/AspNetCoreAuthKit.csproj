@@ -1,14 +1,33 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.14" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.17.0" />
-  </ItemGroup>
+		<IsPackable>true</IsPackable>
+		<PackageId>AspNetCoreAuthKit</PackageId>
+		<Version>1.0.0</Version>
+		<Authors>Simone Marano</Authors>
+		<Description>Zero-friction authentication and authorization toolkit for ASP.NET Core. Provides JWT Bearer, API Key, Refresh Tokens with token rotation, and dynamic claim policies — all wired up with a single fluent AddAuthKit() call. Every module is opt-in with no unnecessary overhead.</Description>
+		<PackageTags>aspnetcore;authentication;authorization;jwt;jwt-bearer;api-key;refresh-token;token-rotation;claims;policy;middleware;dotnet;csharp</PackageTags>
+		<RepositoryUrl>https://github.com/simoneM93/AspNetCoreAuthKit</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageProjectUrl>https://github.com/simoneM93/AspNetCoreAuthKit</PackageProjectUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageReleaseNotes>https://github.com/simoneM93/AspNetCoreAuthKit/blob/main/CHANGELOG.md</PackageReleaseNotes>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\README.md" Pack="true" PackagePath="\" />
+		<None Include="..\CHANGELOG.md" Pack="true" PackagePath="\" />
+		<None Include="..\LICENSE" Pack="true" PackagePath="\" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.25" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.17.0" />
+	</ItemGroup>
 
 </Project>
