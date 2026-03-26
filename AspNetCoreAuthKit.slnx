@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="AspNetCoreAuthKit.Tests/AspNetCoreAuthKit.Tests.csproj" />
+  <Project Path="AspNetCoreAuthKit/AspNetCoreAuthKit.csproj" />
+</Solution>
