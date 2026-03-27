@@ -77,7 +77,7 @@ namespace AspNetCoreAuthKit.JWT
             {
                 return _handler.ValidateToken(token, validationParams, out _);
             }
-            catch (SecurityTokenException)
+            catch (Exception ex) when (ex is SecurityTokenException or ArgumentException)
             {
                 return null;
             }
