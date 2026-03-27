@@ -18,6 +18,10 @@ namespace AspNetCoreAuthKit.Tokens.Services
             IJwtTokenService jwtService,
             IOptions<JwtAuthOptions> jwtOptions)
         {
+            ArgumentNullException.ThrowIfNull(store);
+            ArgumentNullException.ThrowIfNull(jwtService);
+            ArgumentNullException.ThrowIfNull(jwtOptions);
+
             _store = store;
             _jwtService = jwtService;
             _jwtOptions = jwtOptions.Value;

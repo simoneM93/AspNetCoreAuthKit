@@ -2,11 +2,11 @@
 
 [![NuGet](https://img.shields.io/nuget/v/AspNetCoreAuthKit.svg)](https://www.nuget.org/packages/AspNetCoreAuthKit)
 [![Publish to NuGet](https://github.com/simoneM93/AspNetCoreAuthKit/actions/workflows/publish.yml/badge.svg)](https://github.com/simoneM93/AspNetCoreAuthKit/actions/workflows/publish.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/simoneM93/AspNetCoreAuthKit/blob/main/LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![GitHub Sponsors](https://img.shields.io/badge/Sponsor-%E2%9D%A4-ea4aaa?logo=github-sponsors)](https://github.com/sponsors/simoneM93)
-[![Changelog](https://img.shields.io/badge/Changelog-view-blue)](https://github.com/simoneM93/AspNetCoreAuthKit/blob/main/CHANGELOG.md)
+[![Changelog](https://img.shields.io/badge/Changelog-view-blue)](CHANGELOG.md)
 
-A zero-friction authentication & authorization toolkit for ASP.NET Core with JWT Bearer, API Key, Refresh Tokens, and dynamic claim policies — all wired up with a single fluent call.
+A zero-friction authentication & authorization toolkit for ASP.NET Core with JWT Bearer, API Key, Refresh Tokens with rotation, and dynamic claim policies — all wired up with a single fluent call.
 
 > **Why AspNetCoreAuthKit?**
 > Every ASP.NET Core project ends up writing the same boilerplate:
@@ -101,7 +101,6 @@ app.MapPost("/auth/login", async (LoginRequest req,
 
 ### 3. Refresh a token
 
-
 ```csharp
 app.MapPost("/auth/refresh", async (RefreshRequest req,
     IRefreshTokenService refreshService) =>
@@ -120,18 +119,18 @@ app.MapPost("/auth/refresh", async (RefreshRequest req,
 });
 ```
 
-### 4. Protect edpoints with policies
+### 4. Protect endpoints with policies
 
 ```csharp
 // Built-in policies
 app.MapDelete("/users/{id}", ...).RequireAuthorization(CommonPolicies.AdminOnly);
 app.MapGet("/dashboard", ...).RequireAuthorization(CommonPolicies.ApiKeyOrJwt);
 
-// Declarative claim attribute
+// Declarative claim attribute — no manual policy registration needed
 [RequireClaim("role", "admin")]
 public IActionResult DeleteUser(int id) => Ok();
 
-// Multiple accepted values (OR)
+// Multiple accepted values (OR logic)
 [RequireClaim("role", "admin", "moderator")]
 public IActionResult BanUser(int id) => Ok();
 ```
@@ -140,17 +139,17 @@ public IActionResult BanUser(int id) => Ok();
 
 ## 📝 Refresh Tokens
 
-AspNetCoreAuthKit implements token rotation by default: every refresh invalidates the old token and issues a new pair.
+AspNetCoreAuthKit implements **token rotation** by default: every refresh invalidates the old token and issues a new pair.
 
 | Operation | Method |
 |---|---|
-| Refresh access token | ``` refreshService.RefreshAsync(accessToken, refreshToken) ``` |
-| Logout (single device) | ``` refreshService.RevokeAsync(refreshToken) ``` |
-| Logout (all devices) | ``` refreshService.RevokeAllAsync(subject) ``` |
+| Refresh access token | `refreshService.RefreshAsync(accessToken, refreshToken)` |
+| Logout single device | `refreshService.RevokeAsync(refreshToken)` |
+| Logout all devices | `refreshService.RevokeAllAsync(subject)` |
 
-### Custom store (e.g. Redis or EF Core):
+### Custom store (Redis, EF Core, etc.)
 
-```csharp 
+```csharp
 public class RedisRefreshTokenStore : IRefreshTokenStore { ... }
 
 .UseRefreshTokens(rt =>
@@ -163,69 +162,70 @@ public class RedisRefreshTokenStore : IRefreshTokenStore { ... }
 
 ## 📚 API Reference
 
-``` IJwtTokenService ``` methods
+### `IJwtTokenService` methods
 
 | Method | Description |
 |---|---|
-| ``` GenerateToken(TokenRequest) ``` | Generates a new access + refresh token pair |
-| ``` ValidateToken(string) ``` | Validates a token, returns ``` ClaimsPrincipal? ``` |
-| ``` ValidateTokenIgnoreExpiry(string) ``` | Validates ignoring lifetime (used during refresh) |
-| ``` GenerateRefreshToken() ``` | Generates a cryptographically secure random token |
+| `GenerateToken(TokenRequest)` | Generates a new access + refresh token pair |
+| `ValidateToken(string)` | Validates a token, returns `ClaimsPrincipal?` |
+| `ValidateTokenIgnoreExpiry(string)` | Validates ignoring lifetime (used during refresh) |
+| `GenerateRefreshToken()` | Generates a cryptographically secure random token |
 
-``` TokenRequest ``` properties
+### `TokenRequest` properties
 
 | Property | Type | Description |
 |---|---|---|
-| ``` Subject ``` | ``` string ``` | User ID or unique identifier (required) |
-| ``` Claims ``` | ``` IEnumerable<Claim> ``` | Additional claims to embed in the token 
-| ``` ExpiresIn ``` | ``` TimeSpan? ``` | Per-token expiry override |
+| `Subject` | `string` | User ID or unique identifier (required) |
+| `Claims` | `IEnumerable<Claim>` | Additional claims to embed in the token |
+| `ExpiresIn` | `TimeSpan?` | Per-token expiry override |
 
-``` TokenRequest ``` constats
+### `CommonPolicies` constants
 
 | Constant | Behaviour |
 |---|---|
-| ``` CommonPolicies.AuthenticatedUser ``` | Any authenticated user |
-| ``` CommonPolicies.AdminOnly ``` | Requires admin role claim |
-| ``` CommonPolicies.ApiKeyOrJwt ``` | Accepts either scheme |
+| `CommonPolicies.AuthenticatedUser` | Any authenticated user |
+| `CommonPolicies.AdminOnly` | Requires admin role claim |
+| `CommonPolicies.ApiKeyOrJwt` | Accepts either scheme |
 
 ---
 
 ## ⚙️ Configuration Reference
 
-``` JwtAuthOptions ```
+### `JwtAuthOptions`
 
 | Option | Type | Default | Description |
 |---|---|---|---|
-| ``` SecretKey ``` | ``` string ``` | (required) | HMAC signing key |
-| ``` Issuer ``` | ``` string ``` | ``` "" ``` | Token issuer |
-| ``` Audience ``` | ``` string ``` | ``` "" ``` | Token audience |
-| ``` AccessTokenExpiry ``` | ``` TimeSpan ``` | ``` 1 hour ``` | Access token lifetime |
-| ``` RefreshTokenExpiry ``` | ``` TimeSpan ``` | ``` 7 days ``` | Refresh token lifetime |
-| ``` Algorithm ``` | ``` string ``` | ``` HmacSha256 ``` | Signing algorithm |
-| ``` ClockSkew ``` | ``` TimeSpan ``` | ``` 30 seconds ``` | Clock skew tolerance |
+| `SecretKey` | `string` | (required) | HMAC signing key — validated at startup |
+| `Issuer` | `string` | `""` | Token issuer |
+| `Audience` | `string` | `""` | Token audience |
+| `AccessTokenExpiry` | `TimeSpan` | `1 hour` | Access token lifetime |
+| `RefreshTokenExpiry` | `TimeSpan` | `7 days` | Refresh token lifetime |
+| `Algorithm` | `string` | `HmacSha256` | Signing algorithm |
+| `ClockSkew` | `TimeSpan` | `30 seconds` | Clock skew tolerance |
 
-``` ApiKeyOptions ```
+### `ApiKeyOptions`
 
 | Option | Type | Default | Description |
 |---|---|---|---|
-| ``` HeaderName ``` | ``` string ``` | ``` X-Api-Key ``` | Header to read the key from |
-| ``` QueryParamName ``` | ``` string? ``` | ``` null ``` | Query param name (disabled by default) |
-| ``` ValidKeys ``` | ``` string[] ``` | ``` [] ``` | Static list of valid keys |
-| ``` ValidateKeyAsync ``` | ``` Func<string, Task<bool>>? ``` | ``` null ``` | Custom async validator (overrides ``` ValidKeys ```) |
+| `HeaderName` | `string` | `X-Api-Key` | Header to read the key from |
+| `QueryParamName` | `string?` | `null` | Query param name (disabled by default) |
+| `ValidKeys` | `string[]` | `[]` | Static list of valid keys |
+| `ValidateKeyAsync` | `Func<string, Task<bool>>?` | `null` | Custom async validator (overrides `ValidKeys`) |
 
-``` AuthKitAuthorizationOptions ```
+### `AuthKitAuthorizationOptions`
+
 | Option | Type | Default | Description |
 |---|---|---|---|
-| ``` RoleClaimType ``` | ``` string ``` | ``` "role" ``` | Claim type used for roles |
-| ``` AdminRoleValue ``` | ``` string ``` | ``` "admin" ``` | Value that identifies an admin |
+| `RoleClaimType` | `string` | `"role"` | Claim type used for roles |
+| `AdminRoleValue` | `string` | `"admin"` | Value that identifies an admin |
 
 ---
 
 ## 🧪 Testing
 
-``` IJwtTokenService ``` and ``` IRefreshTokenStore ``` are plain interfaces — mock them directly in unit tests:
+`IJwtTokenService` and `IRefreshTokenStore` are plain interfaces — mock them directly in unit tests:
 
-```csharp 
+```csharp
 var tokenServiceMock = new Mock<IJwtTokenService>();
 
 tokenServiceMock
@@ -250,4 +250,4 @@ If you find AspNetCoreAuthKit useful, consider sponsoring its development.
 
 ## 📄 License
 
-MIT — see [LICENSE](https://github.com/simoneM93/AspNetCoreAuthKit/blob/main/LICENSE) for details.
+MIT — see [LICENSE](LICENSE) for details.

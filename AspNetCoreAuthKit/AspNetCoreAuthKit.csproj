@@ -10,7 +10,8 @@
 		<Version>1.0.0</Version>
 		<Authors>Simone Marano</Authors>
 		<Description>Zero-friction authentication and authorization toolkit for ASP.NET Core. Provides JWT Bearer, API Key, Refresh Tokens with token rotation, and dynamic claim policies — all wired up with a single fluent AddAuthKit() call. Every module is opt-in with no unnecessary overhead.</Description>
-		<PackageTags>aspnetcore;authentication;authorization;jwt;jwt-bearer;api-key;refresh-token;token-rotation;claims;policy;middleware;dotnet;csharp</PackageTags>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageTags>aspnetcore;authentication;authorization;jwt;jwt-bearer;api-key;refresh-token;token-rotation;claims;policy;dotnet;csharp;security</PackageTags>
 		<RepositoryUrl>https://github.com/simoneM93/AspNetCoreAuthKit</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageProjectUrl>https://github.com/simoneM93/AspNetCoreAuthKit</PackageProjectUrl>
