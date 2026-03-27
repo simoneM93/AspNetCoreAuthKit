@@ -22,6 +22,9 @@ namespace AspNetCoreAuthKit.Common.Extensions
             this IServiceCollection services,
             Action<AuthKitOptions> configure)
         {
+            ArgumentNullException.ThrowIfNull(services);
+            ArgumentNullException.ThrowIfNull(configure);
+
             var options = new AuthKitOptions();
             configure(options);
 
@@ -40,16 +43,23 @@ namespace AspNetCoreAuthKit.Common.Extensions
             {
                 var jwtOpts = options.JwtOptions;
 
+                services.AddOptions<JwtAuthOptions>()
+                    .Configure(opt =>
+                    {
+                        opt.SecretKey = jwtOpts.SecretKey;
+                        opt.Issuer = jwtOpts.Issuer;
+                        opt.Audience = jwtOpts.Audience;
+                        opt.AccessTokenExpiry = jwtOpts.AccessTokenExpiry;
+                        opt.RefreshTokenExpiry = jwtOpts.RefreshTokenExpiry;
+                        opt.Algorithm = jwtOpts.Algorithm;
+                        opt.ClockSkew = jwtOpts.ClockSkew;
+                    })
+                    .Validate(
+                        o => !string.IsNullOrWhiteSpace(o.SecretKey),
+                        "JwtAuthOptions.SecretKey is required and cannot be empty.")
+                    .ValidateOnStart();
+
                 services.AddSingleton<IJwtTokenService, JwtTokenService>();
-                services.Configure<JwtAuthOptions>(opt =>
-                {
-                    opt.SecretKey = jwtOpts.SecretKey;
-                    opt.Issuer = jwtOpts.Issuer;
-                    opt.Audience = jwtOpts.Audience;
-                    opt.AccessTokenExpiry = jwtOpts.AccessTokenExpiry;
-                    opt.RefreshTokenExpiry = jwtOpts.RefreshTokenExpiry;
-                    opt.Algorithm = jwtOpts.Algorithm;
-                });
 
                 authBuilder.AddJwtBearer(bearer =>
                 {
@@ -63,12 +73,11 @@ namespace AspNetCoreAuthKit.Common.Extensions
                         ValidateAudience = !string.IsNullOrEmpty(jwtOpts.Audience),
                         ValidAudience = jwtOpts.Audience,
                         ValidateLifetime = true,
-                        ClockSkew = TimeSpan.FromSeconds(30)
+                        ClockSkew = jwtOpts.ClockSkew
                     };
                 });
             }
 
-            // --- Modulo API Key ---
             if (options.ApiKeyOptions is not null)
             {
                 var apiKeyOpts = options.ApiKeyOptions;

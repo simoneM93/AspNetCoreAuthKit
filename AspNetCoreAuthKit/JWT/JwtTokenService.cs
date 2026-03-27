@@ -16,6 +16,8 @@ namespace AspNetCoreAuthKit.JWT
 
         public JwtTokenService(IOptions<JwtAuthOptions> options)
         {
+            ArgumentNullException.ThrowIfNull(options);
+
             _options = options.Value;
             _handler.InboundClaimTypeMap.Clear();
         }
@@ -26,7 +28,7 @@ namespace AspNetCoreAuthKit.JWT
             var credentials = new SigningCredentials(key, _options.Algorithm);
             var expiry = DateTimeOffset.UtcNow.Add(request.ExpiresIn ?? _options.AccessTokenExpiry);
 
-            var notBefore = expiry > DateTimeOffset.UtcNow ? DateTime.UtcNow : expiry.UtcDateTime.AddSeconds(-1);
+            var notBefore = DateTime.UtcNow;
 
             var claims = new List<Claim>
             {
@@ -75,7 +77,7 @@ namespace AspNetCoreAuthKit.JWT
             {
                 return _handler.ValidateToken(token, validationParams, out _);
             }
-            catch
+            catch (Exception ex) when (ex is SecurityTokenException or ArgumentException)
             {
                 return null;
             }
@@ -107,7 +109,7 @@ namespace AspNetCoreAuthKit.JWT
             {
                 return _handler.ValidateToken(token, validationParams, out _);
             }
-            catch
+            catch (SecurityTokenException)
             {
                 return null;
             }

@@ -105,27 +105,21 @@ namespace AspNetCoreAuthKit.Tests.JWT
         [Fact]
         public void ValidateTokenIgnoreExpiry_ShouldReturn_Principal_ForExpiredToken()
         {
-            var expiredOptions = new JwtAuthOptions
+            var result = _sut.GenerateToken(new TokenRequest
             {
-                SecretKey = _options.SecretKey,
-                Issuer = _options.Issuer,
-                Audience = _options.Audience,
-                AccessTokenExpiry = TimeSpan.FromSeconds(-10)
-            };
-            var expiredService = new JwtTokenService(Options.Create(expiredOptions));
+                Subject = "user-1",
+                Claims = [new Claim("role", "admin")],
+                ExpiresIn = TimeSpan.FromSeconds(1)
+            });
 
-            var request = new TokenRequest
-            {
-                Subject = "user-123",
-                ExpiresIn = TimeSpan.FromSeconds(-10)
-            };
-            var result = expiredService.GenerateToken(request);
+            Thread.Sleep(2000);
 
-            _sut.ValidateToken(result.AccessToken).Should().BeNull();
+            var failedPrincipal = _sut.ValidateToken(result.AccessToken);
+            Assert.Null(failedPrincipal);
 
             var principal = _sut.ValidateTokenIgnoreExpiry(result.AccessToken);
-            principal.Should().NotBeNull();
-            principal!.FindFirst("sub")?.Value.Should().Be("user-123");
+            Assert.NotNull(principal);
+            Assert.Equal("user-1", principal.FindFirst("sub")?.Value);
         }
 
         [Fact]
